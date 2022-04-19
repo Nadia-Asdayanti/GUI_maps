@@ -1,11 +1,16 @@
 package com.test.mapsnadiaasdayanti;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -28,6 +33,9 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.test.mapsnadiaasdayanti.databinding.ActivityMapsBinding;
+
+import java.io.IOException;
+import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
@@ -165,4 +173,32 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Log.d("onLocationChanged", "Removing Location Updates");
         }
     }
+
+    public void onClick(View V)
+    {
+        if (V.getId ()==R.id.B_search) {
+            EditText tf_location = (EditText) findViewById(R.id.TF_location);
+            String location = tf_location.getText().toString();
+            List<Address> addressList = null;
+            MarkerOptions markerOptions = new MarkerOptions();
+
+            if (!location.equals("")) {
+                Geocoder geocoder = new Geocoder( this);
+                try {
+                    addressList = geocoder.getFromLocationName(location,5);
+                }catch (IOException e){
+                    e.printStackTrace();
+                }
+
+                for (int i = 0; i <addressList.size(); i++){
+                    Address myAddress = addressList.get(i);
+                    LatLng latLng = new LatLng(myAddress.getLatitude(), myAddress.getLongitude());
+                    markerOptions.position(latLng);
+                    markerOptions.title("YOUR SEARCH RESULT");
+                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+                    mMap.addMarker(markerOptions);
+                    mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+            }
+        }
+    }}
 }
